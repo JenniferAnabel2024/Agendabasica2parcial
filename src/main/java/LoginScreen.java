@@ -1,12 +1,12 @@
-
 import javax.swing.*;
+import javax.swing.border.Border; // Asegúrate de importar esto
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginScreen extends JFrame {
-    
- // Constructor 
+
+    // Constructor 
     public LoginScreen() {
         setTitle("Agenda Básica - Inicio");
         setSize(300, 200);
@@ -14,13 +14,44 @@ public class LoginScreen extends JFrame {
         setLocationRelativeTo(null);  // Centra la ventana en la pantalla
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 1, 10, 10)); // 2 filas, 1 columna, 10px de espacio
+        panel.setLayout(new GridBagLayout()); // Usa GridBagLayout
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH; // Permite que los botones se expandan
+        gbc.weightx = 1.0; // Expande horizontalmente
+        gbc.weighty = 1.0; // Expande verticalmente
 
         JButton btnRegistro = new JButton("Registrarse");
         JButton btnLogin = new JButton("Iniciar Sesión");
 
-        panel.add(btnRegistro);
-        panel.add(btnLogin);
+        // Establecer un borde para los botones
+        Border border = BorderFactory.createLineBorder(Color.BLACK); // Borde negro
+        btnRegistro.setBorder(border);
+        btnLogin.setBorder(border);
+
+        // Configurar los botones para que ocupen la misma cantidad de espacio
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(btnRegistro, gbc);
+
+        gbc.gridy = 1; // Nueva fila
+        panel.add(btnLogin, gbc);
+
+        // Cambiar el tamaño de fuente según el tamaño de la ventana
+        btnRegistro.setFont(new Font("Arial", Font.PLAIN, 20));
+        btnLogin.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        // Hacer que el tamaño de los botones se ajuste al redimensionar la ventana
+        btnRegistro.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                ajustarTamanoBoton(btnRegistro);
+            }
+        });
+
+        btnLogin.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                ajustarTamanoBoton(btnLogin);
+            }
+        });
 
         add(panel);
 
@@ -50,7 +81,13 @@ public class LoginScreen extends JFrame {
     // Método para mostrar la ventana de login
     private void mostrarLogin() {
         JOptionPane.showMessageDialog(this, "Ventana de Login (por implementar)");
-        // Aquí más adelante vamos a abrir la pantalla de inicio de sesión
+    }
+
+    // Ajustar el tamaño de los botones
+    private void ajustarTamanoBoton(JButton boton) {
+        Dimension tamaño = boton.getSize();
+        int nuevoTamano = Math.min(tamaño.width, tamaño.height) / 10; // Ajusta el tamaño de la fuente (más pequeño)
+        boton.setFont(new Font("Arial", Font.PLAIN, nuevoTamano));
     }
 
     public static void main(String[] args) {
