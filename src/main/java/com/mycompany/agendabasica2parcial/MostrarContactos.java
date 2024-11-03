@@ -22,7 +22,7 @@ public class MostrarContactos extends JFrame {
         tableModel.addColumn("Teléfono");
         tableModel.addColumn("Email");
 
-        // Crear la tabla
+        // Creo la tabla
         contactosTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(contactosTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -32,10 +32,9 @@ public class MostrarContactos extends JFrame {
     }
 
     private void cargarContactos() {
-        // Cambia esto según tu configuración de conexión
         String url = "jdbc:mysql://127.0.0.1:3306/mibasededatosagenda";
         String user = "root";
-        String password = ""; // Si no tienes contraseña, deja vacío
+        String password = ""; // Cambia esto a tu contraseña si es necesario
         
         Connection connection = null;
         try {
@@ -44,7 +43,7 @@ public class MostrarContactos extends JFrame {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT nombre, telefono, email FROM contactos");
 
-            // Llenar la tabla con los datos de la base de datos
+            // Lleno la tabla con los datos de la base de datos
             while (resultSet.next()) {
                 String nombre = resultSet.getString("nombre");
                 String telefono = resultSet.getString("telefono");

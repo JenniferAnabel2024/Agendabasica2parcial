@@ -1,3 +1,4 @@
+package com.mycompany.agendabasica2parcial;
 import javax.swing.*;
 import java.awt.*;
 
