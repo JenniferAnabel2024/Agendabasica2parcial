@@ -1,9 +1,13 @@
-package com.mycompany.agendabasica2parcial; // Asegúrate de que esta línea esté al inicio
+package com.mycompany.agendabasica2parcial;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class AutenticacionScreen extends JFrame {
 
@@ -42,7 +46,7 @@ public class AutenticacionScreen extends JFrame {
         btnRegistrar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                irARegistro(); // Método que lleva a la ventana de registro
+                registrarUsuario(); // Llama al método para registrar usuario
             }
         });
 
@@ -55,30 +59,79 @@ public class AutenticacionScreen extends JFrame {
     }
 
     private void iniciarSesion() {
-        // Lógica para validar el inicio de sesión (asegúrate de manejar excepciones aquí)
         String nick = txtNick.getText();
         String contrasena = new String(txtContrasena.getPassword());
 
-        // Aquí deberías validar el usuario contra la base de datos
-        // Si hay un error, mostrar un mensaje sin cerrar la ventana
-        try {
-            // Simulación de validación (reemplaza esto con tu lógica)
-            if (nick.equals("admin") && contrasena.equals("admin")) {
-                // Si las credenciales son correctas, muestra la lista de contactos o la siguiente ventana
-                JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso.");
-                new CasillerosScreen().setVisible(true); // Aquí abrirías tu ventana de contactos
-                dispose(); // Cierra la ventana de autenticación
-            } else {
-                JOptionPane.showMessageDialog(this, "Credenciales incorrectas.");
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al iniciar sesión: " + e.getMessage());
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&]).{12,}$";
+
+        if (!contrasena.matches(regex)) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 12 caracteres, una mayúscula, una minúscula y un carácter especial.");
+            return;
+        }
+
+        if (verificarCredenciales(nick, contrasena)) {
+            JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso.");
+            new CasillerosScreen().setVisible(true);
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Credenciales incorrectas o usted debe registrarse.");
         }
     }
 
-    private void irARegistro() {
-        new RegistroUsuarioScreen().setVisible(true); // Muestra la ventana de registro
-        dispose(); // Cierra la ventana de autenticación
+    private boolean verificarCredenciales(String nick, String contrasena) {
+        boolean existeUsuario = false;
+
+        String url = "jdbc:mysql://localhost:3306/mibasededatosagenda";
+        String usuarioDB = "root"; 
+        String contrasenaDB = ""; 
+
+        try (Connection conexion = DriverManager.getConnection(url, usuarioDB, contrasenaDB)) {
+            // Cambiamos a la tabla 'autenticacion'
+            String sql = "SELECT * FROM autenticacion WHERE nick = ? AND contrasena = ?";
+            PreparedStatement statement = conexion.prepareStatement(sql);
+            statement.setString(1, nick);
+            statement.setString(2, contrasena);
+
+            ResultSet resultado = statement.executeQuery();
+            existeUsuario = resultado.next();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al conectar a la base de datos: " + e.getMessage());
+        }
+
+        return existeUsuario;
+    }
+
+    private void registrarUsuario() {
+        String nick = txtNick.getText();
+        String contrasena = new String(txtContrasena.getPassword());
+
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&]).{12,}$";
+
+        if (!contrasena.matches(regex)) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 12 caracteres, una mayúscula, una minúscula y un carácter especial.");
+            return;
+        }
+
+        String url = "jdbc:mysql://localhost:3306/mibasededatosagenda";
+        String usuarioDB = "root"; // Cambia esto por tu usuario de MySQL
+        String contrasenaDB = ""; // Cambia esto por tu contraseña de MySQL
+
+        try (Connection conexion = DriverManager.getConnection(url, usuarioDB, contrasenaDB)) {
+            // Cambiamos a la tabla 'autenticacion'
+            String sql = "INSERT INTO autenticacion (nick, contrasena) VALUES (?, ?)";
+            PreparedStatement statement = conexion.prepareStatement(sql);
+            statement.setString(1, nick);
+            statement.setString(2, contrasena);
+
+            int filasInsertadas = statement.executeUpdate();
+            if (filasInsertadas > 0) {
+                JOptionPane.showMessageDialog(this, "Usuario registrado con éxito.");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

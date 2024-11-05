@@ -1,5 +1,4 @@
-package com.mycompany.agendabasica2parcial; // Asegúrate de que el paquete sea el correcto
-
+package com.mycompany.agendabasica2parcial; 
 public class ContactosABM {
     private String nombre;
     private String telefono;
@@ -25,6 +24,5 @@ public class ContactosABM {
         return email;
     }
 
-    // Métodos adicionales para agregar, eliminar y modificar contactos
-    // Agrega aquí tu lógica para el ABM de contactos
+    
 }

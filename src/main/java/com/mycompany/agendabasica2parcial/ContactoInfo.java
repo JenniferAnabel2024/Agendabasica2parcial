@@ -1,4 +1,4 @@
-package com.mycompany.agendabasica2parcial; // Corrige el paquete aquí
+package com.mycompany.agendabasica2parcial; 
 
 public class ContactoInfo {
     private String nombre;

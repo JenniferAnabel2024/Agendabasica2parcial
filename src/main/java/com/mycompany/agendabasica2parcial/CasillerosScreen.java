@@ -33,7 +33,7 @@ public class CasillerosScreen extends JFrame {
         btnEliminar = new JButton("Eliminar");
         btnMostrar = new JButton("Mostrar");
 
-        // Agregar botones al panel
+        // Agregando botones al panel
         panel.add(btnAgregar);
         panel.add(btnModificar);
         panel.add(btnEliminar);
