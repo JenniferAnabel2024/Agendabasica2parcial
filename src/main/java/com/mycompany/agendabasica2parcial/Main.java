@@ -4,10 +4,10 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        // Crear y mostrar la ventana de contactos al inicio
+        // Crear y mostrar la ventana de autenticación al inicio
         SwingUtilities.invokeLater(() -> {
-            MostrarContactos mostrarContactos = new MostrarContactos();
-            mostrarContactos.setVisible(true);
+            AutenticacionScreen autenticacionScreen = new AutenticacionScreen();
+            autenticacionScreen.setVisible(true);
         });
     }
 }
