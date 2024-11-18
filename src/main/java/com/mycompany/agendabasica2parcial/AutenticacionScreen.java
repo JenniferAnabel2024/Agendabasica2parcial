@@ -2,8 +2,6 @@ package com.mycompany.agendabasica2parcial;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,49 +9,114 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AutenticacionScreen extends JFrame {
-
     private JTextField txtNick;
     private JPasswordField txtContrasena;
     private JButton btnIniciarSesion, btnRegistrar;
 
+    // Mensajes de validación
+    private JLabel lblNickMessage;
+    private JLabel lblContrasenaMessage;
+
     public AutenticacionScreen() {
         setTitle("Autenticación");
-        setSize(300, 200);
+        setSize(900, 500); // Tamaño de la ventana
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initComponents();
     }
 
     private void initComponents() {
-        JPanel panel = new JPanel(new GridLayout(3, 2));
+        // Panel y diseño
+        JPanel panel = new JPanel();
+        GroupLayout layout = new GroupLayout(panel);
+        panel.setLayout(layout);
 
-        panel.add(new JLabel("Nick:"));
+        // Componentes
+        JLabel lblNick = new JLabel("Nick:");
         txtNick = new JTextField();
-        panel.add(txtNick);
+        txtNick.setPreferredSize(new Dimension(150, 30)); // Ajustamos el tamaño del campo de texto
 
-        panel.add(new JLabel("Contraseña:"));
+        lblNickMessage = new JLabel("El nick debe contener solo letras");
+        lblNickMessage.setForeground(Color.RED);
+
+        JLabel lblContrasena = new JLabel("Contraseña:");
         txtContrasena = new JPasswordField();
-        panel.add(txtContrasena);
+        txtContrasena.setPreferredSize(new Dimension(150, 30)); // Ajustamos el tamaño del campo de texto
+
+        lblContrasenaMessage = new JLabel("La contraseña debe contener al menos 12 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial");
+        lblContrasenaMessage.setForeground(Color.RED);
 
         btnIniciarSesion = new JButton("Iniciar Sesión");
-        btnIniciarSesion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                iniciarSesion();
-            }
-        });
-        panel.add(btnIniciarSesion);
+        btnIniciarSesion.addActionListener(e -> validarCampos());
+        btnIniciarSesion.setPreferredSize(new Dimension(200, 40));
 
         btnRegistrar = new JButton("Registrarse");
-        btnRegistrar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                registrarUsuario();
-            }
-        });
-        panel.add(btnRegistrar);
+        btnRegistrar.addActionListener(e -> registrarUsuario());
+        btnRegistrar.setPreferredSize(new Dimension(150, 40));
 
+        // Diseño del GroupLayout
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
+
+        layout.setHorizontalGroup(
+            layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    .addComponent(lblNick)
+                    .addComponent(txtNick)
+                    .addComponent(lblNickMessage)
+                    .addComponent(lblContrasena)
+                    .addComponent(txtContrasena)
+                    .addComponent(lblContrasenaMessage)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnIniciarSesion)
+                        .addGap(50)
+                        .addComponent(btnRegistrar)
+                    )
+                )
+        );
+
+        layout.setVerticalGroup(
+            layout.createSequentialGroup()
+                .addComponent(lblNick)
+                .addComponent(txtNick)
+                .addComponent(lblNickMessage)
+                .addComponent(lblContrasena)
+                .addComponent(txtContrasena)
+                .addComponent(lblContrasenaMessage)
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnIniciarSesion)
+                    .addComponent(btnRegistrar))
+        );
+
+        // Agregamos el panel al marco
         add(panel);
+    }
+
+    private void validarCampos() {
+        boolean esValido = true;
+
+        // Validación de 'nick'
+        if (!txtNick.getText().matches("[a-zA-Z]+")) {
+            lblNickMessage.setText("El nick debe contener solo letras.");
+            JOptionPane.showMessageDialog(this, "El nick debe contener solo letras.", "Error", JOptionPane.ERROR_MESSAGE);
+            esValido = false;
+        } else {
+            lblNickMessage.setText("El nick debe contener solo letras"); // Guía persistente
+        }
+
+        // Validación de 'contraseña'
+        String contrasena = new String(txtContrasena.getPassword());
+        if (!contrasena.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#\\$%\\^&\\*])[A-Za-z\\d!@#\\$%\\^&\\*]{12,}$")) {
+            lblContrasenaMessage.setText("La contraseña no cumple con los requisitos.");
+            JOptionPane.showMessageDialog(this, "La contraseña debe contener al menos 12 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un carácter especial.", "Error", JOptionPane.ERROR_MESSAGE);
+            esValido = false;
+        } else {
+            lblContrasenaMessage.setText("La contraseña debe contener al menos 12 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial"); // Guía persistente
+        }
+
+        if (esValido) {
+            iniciarSesion();
+        }
     }
 
     private void iniciarSesion() {
@@ -64,10 +127,7 @@ public class AutenticacionScreen extends JFrame {
         PreparedStatement statement = null;
 
         try {
-            // Establece la conexión con la base de datos
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mibasededatosagenda", "root", "");
-
-            // Prepara la consulta para verificar las credenciales del usuario en la tabla 'autenticacion'
             String query = "SELECT * FROM autenticacion WHERE nick = ? AND contrasena = ?";
             statement = connection.prepareStatement(query);
             statement.setString(1, nick);
@@ -75,12 +135,11 @@ public class AutenticacionScreen extends JFrame {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Si el usuario existe, intenta obtener el nick y abre la pantalla de casilleros
-                String userNick = resultSet.getString("nick"); // Manejo de SQLException
+                String userNick = resultSet.getString("nick");
                 SwingUtilities.invokeLater(() -> {
-                    CasillerosScreen casilleros = new CasillerosScreen(userNick); // Usar userNick
+                    CasillerosScreen casilleros = new CasillerosScreen(userNick);
                     casilleros.setVisible(true);
-                    dispose(); // Cierra la ventana de autenticación
+                    dispose();
                 });
             } else {
                 JOptionPane.showMessageDialog(null, "Credenciales incorrectas. Por favor regístrese.");
@@ -89,7 +148,6 @@ public class AutenticacionScreen extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al iniciar sesión: " + e.getMessage());
         } finally {
-            // Cierra la conexión y el statement
             try {
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
@@ -103,7 +161,7 @@ public class AutenticacionScreen extends JFrame {
         SwingUtilities.invokeLater(() -> {
             RegistroUsuarioScreen registroScreen = new RegistroUsuarioScreen();
             registroScreen.setVisible(true);
-            dispose(); // Cierra la ventana de autenticación
+            dispose();
         });
     }
 

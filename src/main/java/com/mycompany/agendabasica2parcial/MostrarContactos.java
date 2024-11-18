@@ -64,7 +64,7 @@ public class MostrarContactos extends JFrame {
                 foundContacts = true;  // Si encontró al menos un contacto, marcamos como encontrado
             }
 
-            // Si no se encontraron contactos, mostramos un mensaje
+            // Si no se encontraron contactos.... mensaje
             if (!foundContacts) {
                 JOptionPane.showMessageDialog(this, "No se encontraron contactos para este usuario.");
             }
@@ -73,6 +73,9 @@ public class MostrarContactos extends JFrame {
             JOptionPane.showMessageDialog(this, "Error al cargar contactos: " + e.getMessage());
         } finally {
             // Cerrar la conexión
+            //El bloque trycontiene el código que puede fallar.
+            //El bloque catch captura el error si ocurre y te permite manejarlo de manera controlada.
+            //Una excepción en programación es un evento inesperado 
             try {
                 if (connection != null) {
                     connection.close();
@@ -85,7 +88,7 @@ public class MostrarContactos extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Usamos un ejemplo de nick, en una implementación real este se pasa desde la clase anterior
+            //  ejemplo de nick, en una implementación real este se pasa desde la clase anterior
             MostrarContactos mostrarContactos = new MostrarContactos("Pepino");  // El nick es un ejemplo
             mostrarContactos.setVisible(true);
         });
